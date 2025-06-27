@@ -1,6 +1,6 @@
 Analysis code and results for the study
 
-# Treatment provision and engagement in Colombia’s PAPSIVI: a psychosocial support service providing treatment for over half a million victims of armed conflict
+# Intervention provision and engagement in Colombia’s PAPSIVI: a national psychosocial support service for over half a million victims of armed conflict
 
 <p align="center">
 	<a href="https://en.wikipedia.org/wiki/R_(programming_language)"><img
