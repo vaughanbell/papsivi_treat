@@ -6,23 +6,23 @@ library(gtsummary)
 library(table1)
 library(lmtest)
 library(fastDummies)
-library(multiwayvcov)    
+library(multiwayvcov)
 
-rm(list = ls())
+# rm(list = ls())
 
 output_dir <- "S:/PAPSIVI_Data/VaughanR/PAPSIVI/paper2/output/"
 
 read_in_minsalud_file <- function(filename) {
   # Read in datafile
   flat_df <- read.csv(filename, header = TRUE, sep = '|', stringsAsFactors = TRUE, encoding = "UTF-8")
-  
+
   # Rename miscoded PersonaID variable label
   flat_df <- flat_df %>%
     rename(personid = X.U.FEFF.PersonaID)
-  
+
   # Convert all the variable names to lowercase
   names(flat_df) <- tolower(names(flat_df))
-  
+
   return(flat_df)
 }
 
@@ -170,12 +170,12 @@ cerac_df <- cerac_df |>
 # Make sure the conflict exposure category is an ordered factor
 cerac_df$exp <- as.ordered(cerac_df$exp)
 
-# Merge CERAC data 
+# Merge CERAC data
 df <- df %>%
   left_join(cerac_df, by = "municipio_id", multiple = "first")
 
 df <- df %>%
-  mutate(cerac = ifelse(Intensidad == "alta intensidad", "high", "low")) 
+  mutate(cerac = ifelse(Intensidad == "alta intensidad", "high", "low"))
 
 # Load and recode RUV papsivi file (contains info on sessions)
 #
@@ -183,20 +183,20 @@ df <- df %>%
 ruv_papsivi_filename = "S:/PAPSIVI_Data/data_files/ExtraccionRUV_PAPSIVI.txt"
 ruvpap_df <- read_in_minsalud_file(ruv_papsivi_filename)
 
-# Drop indicadorpapsivi as all responses are yes 
+# Drop indicadorpapsivi as all responses are yes
 ruvpap_df$indicadorpapsivi <- NULL
 
-# Remove tema papsivi as will only consider modalidad 
+# Remove tema papsivi as will only consider modalidad
 ruvpap_df$temaatencionpapsivi <- NULL
 # Remove last row
 ruvpap_df <- ruvpap_df |>
   filter(row_number() <= n() -1)
 
-# Merge 
+# Merge
 df <- df %>%
   left_join(ruvpap_df, by = "personid", relationship = "many-to-many")
 
-##### load datasets for previous mental health 
+##### load datasets for previous mental health
 
 # This is RUV_RIPS atenciones dataset (outpatient data)
 RIPS_transtmentales_filename = "S:/PAPSIVI_Data/data_files/ExtraccionRUV_RIPS_AtencTranstMentales.txt"
@@ -206,10 +206,10 @@ RIPS_transtmentales <- read_in_minsalud_file(RIPS_transtmentales_filename)
 RIPS_transtmentales <- RIPS_transtmentales |>
   filter(row_number() <= n() -1)
 
-# Remove grupodiagnostico as all the same 
+# Remove grupodiagnostico as all the same
 RIPS_transtmentales$grupodiagnostico <- NULL
 
-# This keeps only ICD code label 
+# This keeps only ICD code label
 RIPS_transtmentales <- RIPS_transtmentales |>
   mutate(diagnostico = substr(diagnostico, 1, 4))
 
@@ -226,11 +226,11 @@ RIPS_transtmentales <- RIPS_transtmentales |>
     TRUE ~ diagnostico
   ))
 
-## Now group all diagnoses into the ICD overall categories 
-RIPS_transtmentales <- RIPS_transtmentales |> 
-  mutate(diagnostico = as.character(diagnostico)) |> 
+## Now group all diagnoses into the ICD overall categories
+RIPS_transtmentales <- RIPS_transtmentales |>
+  mutate(diagnostico = as.character(diagnostico)) |>
   mutate(icd_diagnosis = case_when(
-    diagnostico >= "F000" & diagnostico <= "F090" ~ 1, 
+    diagnostico >= "F000" & diagnostico <= "F090" ~ 1,
     diagnostico >= "F100" & diagnostico <= "F199" ~ 2,
     diagnostico >= "F200" & diagnostico <= "F299" ~ 3,
     diagnostico >= "F300" & diagnostico <= "F399" ~ 4,
@@ -244,23 +244,23 @@ RIPS_transtmentales <- RIPS_transtmentales |>
     TRUE ~ NA_real_
   ))
 
-RIPS_transtmentales <- RIPS_transtmentales |> 
-  mutate(icd_diagnosis = factor(icd_diagnosis, 
+RIPS_transtmentales <- RIPS_transtmentales |>
+  mutate(icd_diagnosis = factor(icd_diagnosis,
                                 levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
                                 labels = c("organic incl dementia", "psychoactive substance abuse", "schizophrenia - delusional", "affective disorders", "neurotic stress-related", "behavioural", "adult personality",  "mental retardation", "psychological development", "childhood onset", "unspecified")))
 
-# Load hospital data 
-RIPS_hosp_filename ="S:/PAPSIVI_Data/data_files/ExtraccionRUV_RIPS_HospTranstMentales.txt" 
+# Load hospital data
+RIPS_hosp_filename ="S:/PAPSIVI_Data/data_files/ExtraccionRUV_RIPS_HospTranstMentales.txt"
 RIPS_hosptranstmentales <- read_in_minsalud_file(RIPS_hosp_filename)
 
 # Remove last row
 RIPS_hosptranstmentales <- RIPS_hosptranstmentales |>
   filter(row_number() <= n() -1)
 
-# Remove grupodiagnostico as all the same 
+# Remove grupodiagnostico as all the same
 RIPS_hosptranstmentales$grupodiagnostico <- NULL
 
-# This keeps only ICD code label 
+# This keeps only ICD code label
 RIPS_hosptranstmentales <- RIPS_hosptranstmentales |>
   mutate(diagnostico = substr(diagnostico, 1, 4))
 
@@ -277,11 +277,11 @@ RIPS_hosptranstmentales <- RIPS_hosptranstmentales |>
     TRUE ~ diagnostico
   ))
 
-# Now group all diagnoses into the ICD overall categories 
+# Now group all diagnoses into the ICD overall categories
 RIPS_hosptranstmentales <- RIPS_hosptranstmentales |>
-  mutate(diagnostico = as.character(diagnostico)) |> 
+  mutate(diagnostico = as.character(diagnostico)) |>
   mutate(icd_diagnosis = case_when(
-    diagnostico >= "F000" & diagnostico <= "F090" ~ 1, 
+    diagnostico >= "F000" & diagnostico <= "F090" ~ 1,
     diagnostico >= "F100" & diagnostico <= "F199" ~ 2,
     diagnostico >= "F200" & diagnostico <= "F299" ~ 3,
     diagnostico >= "F300" & diagnostico <= "F399" ~ 4,
@@ -296,7 +296,7 @@ RIPS_hosptranstmentales <- RIPS_hosptranstmentales |>
   ))
 
 RIPS_hosptranstmentales <- RIPS_hosptranstmentales |>
-  mutate(icd_diagnosis = factor(icd_diagnosis, 
+  mutate(icd_diagnosis = factor(icd_diagnosis,
                                 levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
                                 labels = c("organic incl dementia", "psychoactive substance abuse", "schizophrenia - delusional", "affective disorders", "neurotic stress-related", "behavioural", "adult personality",  "mental retardation", "psychological development", "childhood onset", "unspecified")))
 
@@ -308,24 +308,24 @@ df_mentalhealth <- RIPS_hosptranstmentales %>%
 df <- df %>%
   left_join(df_mentalhealth, by = "personid", multiple = "first")
 
-# Rename fecha papsivi variables  
+# Rename fecha papsivi variables
 df <- df %>%
   rename(fecha.papsivi = fecha.x)
 
 df <- df %>%
   rename(fecha.hosp = fecha.y)
 
-# Create previous mental health variable - yes if mental contact and no if no mh contact OR if mh contact comes after papsivi contact 
+# Create previous mental health variable - yes if mental contact and no if no mh contact OR if mh contact comes after papsivi contact
 df <- df %>%
   mutate(
     earliest_mh_yr = pmin(fecha.hosp, fecha.outpatient, na.rm = TRUE),
-  ) 
+  )
 
 df <- df %>%
   mutate(
     mh_prev = case_when(
       !is.na(earliest_mh_yr) & (is.na(fecha.papsivi) | earliest_mh_yr <= fecha.papsivi) ~ "yes",
-      TRUE ~ "no"                         
+      TRUE ~ "no"
     )
   )
 
@@ -346,26 +346,26 @@ df <- df |>
 #
 ########################################################################
 
-# Count number of each type of sessions 
-summary <- ruvpap_df %>% 
+# Count number of each type of sessions
+summary <- ruvpap_df %>%
   distinct(personid, modalidaatencionpapsivi) %>%
   group_by(modalidaatencionpapsivi) %>%
   summarise(
     people_count = n_distinct(personid),
     .groups = "drop"
   )
-print(summary) 
+print(summary)
 
 #### Create a variable people_count to count number of sessions per personid (collapses data by modalidad)
-sessions_per_person <- ruvpap_df %>% 
+sessions_per_person <- ruvpap_df %>%
   group_by(personid, modalidaatencionpapsivi)  %>%
   summarise(total_sessions = n(), .groups = "drop")
 
-# This gives breakdown of sessions per type 
-attendance_distribution <-  sessions_per_person %>% 
+# This gives breakdown of sessions per type
+attendance_distribution <-  sessions_per_person %>%
   group_by(modalidaatencionpapsivi, total_sessions) %>%
   summarise(n_patients = n(), .groups= "drop")
-print(attendance_distribution) 
+print(attendance_distribution)
 
 # Descriptives for Table 1
 
@@ -397,11 +397,11 @@ first_reg_df <- first_reg_df %>%
   rename(modalidad = modalidaatencionpapsivi)
 
 # Make dummy variables
-df <- dummy_cols(df, select_columns = c("hechovictimizante"))  
-df <- dummy_cols(df, select_columns = c("modalidad"))  
+df <- dummy_cols(df, select_columns = c("hechovictimizante"))
+df <- dummy_cols(df, select_columns = c("modalidad"))
 
-## Count unique number of individuals for sessions by victim type 
-# (this method counts number of unique people per victimisation type, 
+## Count unique number of individuals for sessions by victim type
+# (this method counts number of unique people per victimisation type,
 # allows for multiple victimisation types within sessions)
 ind_df <- subset(df, modalidad == "INDIVIDUAL")
 group_df <- subset(df, modalidad == "GRUPAL")
@@ -420,11 +420,40 @@ victim_counts <- first_reg_ind_df %>%
 
 victimisation_vars <- c("hechovictimizante_tortura", "hechovictimizante_violenciasexual", "hechovictimizante_amenaza", "hechovictimizante_desplazamiento", "hechovictimizante_homocidio", "hechovictimizante_hostigamientos", "hechovictimizante_lesion_fis", "hechovictimizante_despojo_tierras", "hechovictimizante_confinamiento", "hechovictimizante_lesion_psic", "hechovictimizante_minas", "hechovictimizante_perdida_bienes", "hechovictimizante_secuestro", "hechovictimizante_reclut_ninos", "hechovictimizante_desparacion")
 
+# Count number of distinct modalities received per person
+modality_counts <- df %>%
+  filter(!is.na(modalidad)) %>%  # Only include rows where modality is recorded
+  distinct(personid, modalidad) %>%  # Get unique person-modality combinations
+  group_by(personid) %>%
+  summarise(n_modalities = n_distinct(modalidad), .groups = "drop")
+
+# Summarize distribution
+modality_distribution <- modality_counts %>%
+  group_by(n_modalities) %>%
+  summarise(
+    n_people = n(),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    percentage = round(n_people / sum(n_people) * 100, 2)
+  )
+
+print(modality_distribution)
+
+# Simple binary: one modality vs multiple modalities
+modality_binary <- modality_counts %>%
+  mutate(modality_type = ifelse(n_modalities == 1, "Single modality", "Multiple modalities")) %>%
+  group_by(modality_type) %>%
+  summarise(n_people = n(), .groups = "drop") %>%
+  mutate(percentage = round(n_people / sum(n_people) * 100, 2))
+
+print(modality_binary)
+
 # Create variable to count total number of papsivi sessions attended per person of any type
 df <- df |>
   group_by(personid) |>
   mutate(total_sessions = if_else(row_number() == 1, sum(!is.na(modalidad)), as.numeric(NA))) %>%
-  ungroup() 
+  ungroup()
 
 # count number of individual sessions
 ind_df <- ind_df |>
@@ -442,9 +471,9 @@ group_df <- group_df |>
 family_df <- family_df |>
   group_by(personid) |>
   mutate(fam_sessions = if_else(row_number() == 1, sum(!is.na(modalidad)), as.numeric(NA))) %>%
-  ungroup()  
+  ungroup()
 
-# create variable to count number of community sessions 
+# create variable to count number of community sessions
 comm_df <- comm_df |>
   group_by(personid) |>
   mutate(comm_sessions = if_else(row_number() == 1, sum(!is.na(modalidad)), as.numeric(NA))) %>%
@@ -459,14 +488,14 @@ comm_df <- comm_df |>
 
 
 # run_exp_reg: function to run regression analyses on odds of session type received by each victimisation category
-# 
+#
 # Parameters:
 #  response_var: session type variable
 # Returns:
 #  dataframe with results
 #
 run_exp_reg <- function(response_var, adjust = FALSE) {
-  
+
   results_df <- data.frame(
     Variable = character(),
     Coefficient = numeric(),
@@ -475,32 +504,32 @@ run_exp_reg <- function(response_var, adjust = FALSE) {
     UpperCI = numeric(),
     stringsAsFactors = FALSE
   )
-  
+
   for (victim_var in victimisation_vars) {
-    
+
     if(adjust == TRUE) {
-      formula <- as.formula(paste(response_var, victim_var, " + edad + sexo + tipo_regimen + etnia + cerac")) 
+      formula <- as.formula(paste(response_var, victim_var, " + edad + sexo + tipo_regimen + etnia + cerac"))
     } else {
       formula <- as.formula(paste(response_var, victim_var))
     }
-    
+
     # Run regression
-    model <- glm(formula, data = df, family = binomial(link = "logit")) 
-    
+    model <- glm(formula, data = df, family = binomial(link = "logit"))
+
     # Extract model from regression object and print to screen to indicate it's been run
     model_formula <- paste(deparse(formula(model)), collapse = "")
     print(model_formula)
-    
+
     vcov_2way <- cluster.vcov(model, cluster = df$personid)
     robust_results <- coeftest(model, vcov = vcov_2way)
-    
+
     coefs <- robust_results[, "Estimate"]
     ses <- robust_results[, "Std. Error"]
-    
+
     odds_ratio <- exp(coefs)
     lower_95 <- exp(coefs - 1.96 * ses)
     upper_95 <- exp(coefs + 1.96 * ses)
-    
+
     results_df <- rbind(
       results_df,
       data.frame(
@@ -559,14 +588,14 @@ write.csv(comresults_ad_df, paste(output_dir, "modcom_ad_results.csv", sep = "")
 #
 # run_prevmh_reg: function to run regression analyses on session type received by presence of previous mental
 #            health diagnosis
-# 
+#
 # Parameters:
 #  response_var: session type variable
 # Returns:
 #  dataframe with results
 #
 run_prevmh_reg <- function(response_var, adjust = FALSE) {
-  
+
   results_df <- data.frame(
     Variable = character(),
     Coefficient = numeric(),
@@ -575,31 +604,31 @@ run_prevmh_reg <- function(response_var, adjust = FALSE) {
     UpperCI = numeric(),
     stringsAsFactors = FALSE
   )
-  
+
   if(adjust == TRUE) {
     formula <- as.formula(paste(response_var, "mh_prev", " + edad + sexo + tipo_regimen + etnia + cerac"))
   } else {
-    formula <- as.formula(paste(response_var, "mh_prev")) 
+    formula <- as.formula(paste(response_var, "mh_prev"))
   }
-  
+
   # Run regression
-  model <- glm(formula, data = df, family = binomial(link = "logit")) 
+  model <- glm(formula, data = df, family = binomial(link = "logit"))
 
   # Extract model from regression object and print to screen to indicate it's been run
   model_formula <- paste(deparse(formula(model)), collapse = "")
   print(model_formula)
-  
+
   # Calculate outcomes using cluster robust standard errors, clustering by personid and municipio_id
   vcov_2way <- cluster.vcov(model, cluster = df$personid)
   robust_results <- coeftest(model, vcov = vcov_2way)
-  
+
   coefs <- robust_results[, "Estimate"]
   ses <- robust_results[, "Std. Error"]
-  
+
   odds_ratio <- exp(coefs)
   lower_95 <- exp(coefs - 1.96 * ses)
   upper_95 <- exp(coefs + 1.96 * ses)
-  
+
   # Store in dataframe and return
   results_df <- rbind(
     results_df,
@@ -647,7 +676,7 @@ prevmh_fam_ad_df$session_var <- "family"
 prevmh_com_ad_df <- run_prevmh_reg("modalidad_COMUNITARIO ~", adjust = TRUE)
 prevmh_com_ad_df$session_var <- "community"
 
-# Bind and tidy up for writing 
+# Bind and tidy up for writing
 prevmh_sesstype_results_df <- rbind(prevmh_sesstype_results_df, prevmh_ind_ad_df, prevmh_grp_ad_df, prevmh_fam_ad_df, prevmh_fam_ad_df, prevmh_com_ad_df)
 prevmh_sesstype_results_df <- prevmh_sesstype_results_df %>% relocate(session_var)
 write.csv(prevmh_sesstype_results_df, paste(output_dir, "prevmh_sesstype_results_ad.csv", sep = ""), row.names = FALSE)
@@ -661,7 +690,7 @@ write.csv(prevmh_sesstype_results_df, paste(output_dir, "prevmh_sesstype_results
 
 
 # simple_lin_reg: function to run regression analyses on session type received by each victimisation type
-# 
+#
 # Parameters:
 #  formula: regression formula
 #  func_df: dataframe with data
@@ -669,15 +698,15 @@ write.csv(prevmh_sesstype_results_df, paste(output_dir, "prevmh_sesstype_results
 #  dataframe with results
 #
 simple_lin_reg <- function(formula, func_df) {
-  model <- glm(formula, data = func_df, family = gaussian) 
-  
+  model <- glm(formula, data = func_df, family = gaussian)
+
   vcov_2way <- cluster.vcov(model, cluster = func_df$personid)
   coefs <- coef(model)
   cluster_se <- sqrt(diag(vcov_2way))
   t_crit <- qt(0.975, df = model$df.residual)
   ci_lower <- coefs - t_crit * cluster_se
   ci_upper <- coefs + t_crit * cluster_se
-  
+
   results_df <- data.frame(
     Coefficient = names(coefs)[2],
     Estimate = coefs[2],
@@ -715,7 +744,7 @@ prevmh_fam_df$session_var <- "family"
 prevmh_com_df <- simple_lin_reg("comm_sessions ~ mh_prev + sexo + edad + tipo_regimen + etnia_min + cerac", comm_df)
 prevmh_com_df$session_var <- "community"
 
-# Bind and tidy up for writing 
+# Bind and tidy up for writing
 prevmh_results_df <- rbind(prevmh_results_df, prevmh_tot_df, prevmh_ind_df, prevmh_grp_df, prevmh_fam_df, prevmh_com_df)
 prevmh_results_df <- prevmh_results_df %>% relocate(session_var)
 write.csv(prevmh_results_df, paste(output_dir, "nsessions_prevmh_ad.csv", sep = ""), row.names = FALSE)
@@ -725,14 +754,14 @@ write.csv(prevmh_results_df, paste(output_dir, "nsessions_prevmh_ad.csv", sep = 
 #
 
 # run_lin_reg: function to run regression analyses on session type received by each victimisation type
-# 
+#
 # Parameters:
 #  response_var: session type variable
 # Returns:
 #  dataframe with results
 #
 run_lin_reg <- function(response_var, reg_df, adjust = FALSE) {
-  
+
   results_df <- data.frame(
     Variable = character(),
     Coefficient = numeric(),
@@ -741,33 +770,33 @@ run_lin_reg <- function(response_var, reg_df, adjust = FALSE) {
     UpperCI = numeric(),
     stringsAsFactors = FALSE
   )
-  
+
   for (victim_var in victimisation_vars) {
-    
+
     if(adjust == TRUE) {
-      formula <- as.formula(paste(response_var, victim_var, " + edad + sexo + tipo_regimen + etnia + cerac")) 
+      formula <- as.formula(paste(response_var, victim_var, " + edad + sexo + tipo_regimen + etnia + cerac"))
     } else {
-      formula <- as.formula(paste(response_var, victim_var)) 
+      formula <- as.formula(paste(response_var, victim_var))
     }
-    
+
     # Run regression
-    model <- glm(formula, data = reg_df, family = gaussian) 
-    
+    model <- glm(formula, data = reg_df, family = gaussian)
+
     # Extract model from regression object and print to screen to indicate it's been run
     model_formula <- paste(deparse(formula(model)), collapse = "")
     print(model_formula)
-    
+
     # Calculate outcomes using cluster robust standard errors, clustering by personid and municipio_id
     vcov_2way <- cluster.vcov(model, cluster = reg_df$personid)
-    
+
     coefs <- coef(model)
     cluster_se <- sqrt(diag(vcov_2way))
-    
+
     t_crit <- qt(0.975, df = model$df.residual)
-    
+
     ci_lower <- coefs - t_crit * cluster_se
     ci_upper <- coefs + t_crit * cluster_se
-    
+
     # Store in dataframe and return
     results_df <- rbind(
       results_df,
@@ -832,7 +861,7 @@ sex_fam_df$session_var <- "family"
 sex_com_df <- simple_lin_reg("comm_sessions ~ sexo + edad + tipo_regimen + etnia_min + cerac", comm_df)
 sex_com_df$session_var <- "community"
 
-# Bind and tidy up for writing 
+# Bind and tidy up for writing
 sex_results_df <- rbind(sex_results_df, sex_tot_df, sex_ind_df, sex_grp_df, sex_fam_df, sex_com_df)
 sex_results_df <- sex_results_df %>% relocate(session_var)
 row.names(sex_results_df) <- NULL
@@ -865,7 +894,7 @@ etn_fam_df$session_var <- "family"
 etn_com_df <- simple_lin_reg("comm_sessions ~ etnia_min + sexo + edad + tipo_regimen + cerac", comm_df)
 etn_com_df$session_var <- "community"
 
-# Bind and tidy up for writing 
+# Bind and tidy up for writing
 etn_results_df <- rbind(etn_results_df, etn_tot_df, etn_ind_df, etn_grp_df, etn_fam_df, etn_com_df)
 etn_results_df <- etn_results_df %>% relocate(session_var)
 row.names(etn_results_df) <- NULL
@@ -898,7 +927,7 @@ treg_fam_df$session_var <- "family"
 treg_com_df <- simple_lin_reg("comm_sessions ~ tipo_regimen + sexo + edad + etnia_min + cerac", comm_df)
 treg_com_df$session_var <- "community"
 
-# Bind and tidy up for writing 
+# Bind and tidy up for writing
 treg_results_df <- rbind(treg_results_df, treg_tot_df, treg_ind_df, treg_grp_df, treg_fam_df, treg_com_df)
 treg_results_df <- treg_results_df %>% relocate(session_var)
 row.names(treg_results_df) <- NULL
@@ -911,8 +940,8 @@ write.csv(treg_results_df, paste(output_dir, "nsessions_treg.csv", sep = ""), ro
 #
 #####################################################################################
 
-# Combine outpatient and inpatient variables 
-levels(df$icd_diagnosis) <- levels(df$icd_diagnosis.outpatient) 
+# Combine outpatient and inpatient variables
+levels(df$icd_diagnosis) <- levels(df$icd_diagnosis.outpatient)
 df$alldiagnoses <- ifelse(is.na(df$icd_diagnosis.outpatient), as.character(df$icd_diagnosis), as.character(df$icd_diagnosis.outpatient))
 df$alldiagnoses <- factor(df$alldiagnoses, levels = levels(df$icd_diagnosis.outpatient))
 
@@ -920,9 +949,9 @@ df$alldiagnoses <- factor(df$alldiagnoses, levels = levels(df$icd_diagnosis.outp
 df <- df %>%
   mutate(
     icd = if_else(
-      is.na(fecha.papsivi) | earliest_mh_yr <= fecha.papsivi, 
+      is.na(fecha.papsivi) | earliest_mh_yr <= fecha.papsivi,
       alldiagnoses,
-      NA_character_                          
+      NA_character_
     )
   )
 
@@ -931,21 +960,21 @@ df$icd <- gsub(" ", "", df$icd)
 df$icd <- gsub("-", "", df$icd)
 
 # Create dummy vars
-df <- dummy_cols(df, select_columns = c("icd"))  
+df <- dummy_cols(df, select_columns = c("icd"))
 
 # Get list of diagnoses listed in the icd variable and turn into list of dummy column variables
 icddx_list <- unique(na.omit(df$icd))
 icddx_list <- paste0("icd_", icddx_list)
 
 # run_icd_reg: function to run regression analyses on odds of session type received by each victimisation category
-# 
+#
 # Parameters:
 #  response_var: session type variable
 # Returns:
 #  dataframe with results
 #
 run_icd_reg <- function(response_var, adjust = FALSE) {
-  
+
   results_df <- data.frame(
     Variable = character(),
     Coefficient = numeric(),
@@ -954,32 +983,32 @@ run_icd_reg <- function(response_var, adjust = FALSE) {
     UpperCI = numeric(),
     stringsAsFactors = FALSE
   )
-  
+
   for (icd_var in icddx_list) {
-    
+
     if(adjust == TRUE) {
-      formula <- as.formula(paste(response_var, icd_var, " + edad + sexo + tipo_regimen + etnia + cerac")) 
+      formula <- as.formula(paste(response_var, icd_var, " + edad + sexo + tipo_regimen + etnia + cerac"))
     } else {
       formula <- as.formula(paste(response_var, icd_var))
     }
-    
+
     # Run regression
-    model <- glm(formula, data = df, family = binomial(link = "logit")) 
-    
+    model <- glm(formula, data = df, family = binomial(link = "logit"))
+
     # Extract model from regression object and print to screen to indicate it's been run
     model_formula <- paste(deparse(formula(model)), collapse = "")
     print(model_formula)
-    
+
     vcov_2way <- cluster.vcov(model, cluster = df$personid)
     robust_results <- coeftest(model, vcov = vcov_2way)
-    
+
     coefs <- robust_results[, "Estimate"]
     ses <- robust_results[, "Std. Error"]
-    
+
     odds_ratio <- exp(coefs)
     lower_95 <- exp(coefs - 1.96 * ses)
     upper_95 <- exp(coefs + 1.96 * ses)
-    
+
     results_df <- rbind(
       results_df,
       data.frame(
