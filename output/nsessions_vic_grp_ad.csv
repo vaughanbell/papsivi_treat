@@ -1,0 +1,16 @@
+"Coefficient","Estimate","LowerCI","UpperCI"
+"hechovictimizante_tortura",NA,NA,NA
+"hechovictimizante_violenciasexual",5.87662104923141,0.782203548099455,10.9710385503634
+"hechovictimizante_amenaza",10.6205748343853,3.54753386064701,17.6936158081235
+"hechovictimizante_desplazamiento",-7.76553562869744,-11.098768004614,-4.43230325278091
+"hechovictimizante_homocidio",3.4537299932345,-1.26151790985593,8.16897789632493
+"hechovictimizante_hostigamientos",NA,NA,NA
+"hechovictimizante_lesion_fis",4.60614893890025,4.1074303314838,5.10486754631669
+"hechovictimizante_despojo_tierras",13.7028076639834,13.2456702143669,14.1599451135999
+"hechovictimizante_confinamiento",NA,NA,NA
+"hechovictimizante_lesion_psic",24.8068362056454,23.5808767932147,26.0327956180761
+"hechovictimizante_minas",-5.5601725611994,-5.83242300133493,-5.28792212106388
+"hechovictimizante_perdida_bienes",NA,NA,NA
+"hechovictimizante_secuestro",NA,NA,NA
+"hechovictimizante_reclut_ninos",NA,NA,NA
+"hechovictimizante_desparacion",-0.810953818217028,-1.1782803473386,-0.443627289095457
