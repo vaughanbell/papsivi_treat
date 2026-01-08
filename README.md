@@ -20,8 +20,6 @@ Charlotte Constable Fernandez and Vaughan Bell
 ### Archive contents
 This archive contains the [R](https://en.wikipedia.org/wiki/R_(programming_language)) code for the analysis reported in the above study.
 
-This repository contains a dataset with the extracted meta-analytic data and a Jupyter notebook that reports the analysis and results
-
 1.  [Constable-Fernandez_PAPSIVI_Treatment.R](https://github.com/vaughanbell/papsivi_treat/blob/main/Constable-Fernandez_PAPSIVI_Treatment.R) - main analysis code
 2.  [create_forest_plots.R](https://github.com/vaughanbell/papsivi_treat/blob/main/create_forest_plots.R) - code to create forest plots of results
 3.  [output](https://github.com/vaughanbell/papsivi_treat/tree/main/output) - directory with all the output files created by the analysis script
