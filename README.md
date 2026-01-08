@@ -23,4 +23,6 @@ This archive contains the [R](https://en.wikipedia.org/wiki/R_(programming_langu
 This repository contains a dataset with the extracted meta-analytic data and a Jupyter notebook that reports the analysis and results
 
 1.  [Constable-Fernandez_PAPSIVI_Treatment.R](https://github.com/vaughanbell/papsivi_treat/blob/main/Constable-Fernandez_PAPSIVI_Treatment.R) - main analysis code
-4.  [output](https://github.com/vaughanbell/papsivi_treat/tree/main/output) - directory with all the output files created by the analysis script
+2.  [create_forest_plots.R](https://github.com/vaughanbell/papsivi_treat/blob/main/create_forest_plots.R) - code to create forest plots of results
+3.  [output](https://github.com/vaughanbell/papsivi_treat/tree/main/output) - directory with all the output files created by the analysis script
+4.  [forestplots](https://github.com/vaughanbell/papsivi_treat/tree/main/forestplots) - directory with all the forest plot images files
