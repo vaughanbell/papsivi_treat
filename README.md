@@ -12,7 +12,7 @@ Analysis code and results for the study
 </p>
 
 ### Publication status
-Constable Fernandez C, Acosta Ortiz A, García Durán M-C, Pappa E, Saunders R, Solmi F, Tamayo Agudelo W, Idrobo F, Bell V (in press) Treatment provision and engagement in Colombia’s PAPSIVI: a psychosocial support service providing treatment for over half a million victims of armed conflict. Pre-print https://doi.org/10.1101/2025.07.08.25331104
+Constable Fernandez C, Acosta Ortiz A, García Durán M-C, Pappa E, Saunders R, Solmi F, Tamayo Agudelo W, Idrobo F, Bell V (2026) Treatment provision and engagement in Colombia’s PAPSIVI: a psychosocial support service providing treatment for over half a million victims of armed conflict. _Conflict and Health_ https://doi.org/10.1186/s13031-026-00760-x
 
 ### Analysis code developed by
 Charlotte Constable Fernandez and Vaughan Bell
